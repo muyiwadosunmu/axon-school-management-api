@@ -13,7 +13,16 @@ module.exports = class User {
         this.httpExposed         = ['createUser', 'login']; // Exposed for HTTP
     }
 
-    async createUser({username, email, password, role, schoolId}){
+    async createUser({__longToken, __isSuperAdmin, username, email, password, role, schoolId}){
+        // Enforce School Admin requirements
+        if(role === 'SCHOOL_ADMIN'){
+             if(!schoolId) return { error: 'School ID is required for School Administrators', code: 400 };
+             
+             // Validate School Exists
+             const school = await this.mongomodels.school.findById(schoolId);
+             if(!school) return { error: 'Invalid School ID', code: 400 };
+        }
+
         const user = {username, email, password, role, schoolId};
 
         // Data validation

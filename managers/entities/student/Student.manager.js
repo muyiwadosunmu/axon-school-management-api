@@ -20,6 +20,20 @@ module.exports = class Student {
         let result = await this.validators.student.createStudent(student);
         if(result) return result;
 
+        if (classroomId) {
+            const classroom = await this.mongomodels.classroom.findById(classroomId);
+            if (!classroom) return { error: 'Classroom not found', code: 404 };
+            
+            if (classroom.schoolId.toString() !== effectiveSchoolId.toString()) {
+                return { error: 'Classroom belongs to a different school', code: 400 };
+            }
+
+            const currentCount = await this.mongomodels.student.countDocuments({ classroomId });
+            if (currentCount >= classroom.capacity) {
+                return { error: 'Classroom is full', code: 400 };
+            }
+        }
+
         // Creation
         const createdStudent = await this.mongomodels.student.create(student);
         
