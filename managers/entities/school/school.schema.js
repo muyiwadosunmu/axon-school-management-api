@@ -1,7 +1,7 @@
 module.exports = {
     createSchool: [
         { model: 'title', path: 'name', required: true },
-        { model: 'text', path: 'address', required: true },
+        { model: 'longText', path: 'address', required: true },
         { model: 'phone', required: false },
         { model: 'email', required: false },
         { model: 'url', path: 'website', required: false },

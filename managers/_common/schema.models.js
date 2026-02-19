@@ -19,7 +19,6 @@ module.exports = {
     },
 
     title: {
-        path: 'title',
         type: 'string',
         length: {min: 3, max: 300}
     },
@@ -75,7 +74,7 @@ module.exports = {
     },
     phone: {
         type: 'String',
-        length: 13,
+        length: {min: 7, max: 15},
     },
     email: {
         path: 'email',

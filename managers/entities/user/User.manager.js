@@ -13,7 +13,7 @@ module.exports = class User {
         this.httpExposed         = ['createUser', 'login']; // Exposed for HTTP
     }
 
-    async createUser({__longToken, __isSuperAdmin, username, email, password, role, schoolId}){
+    async createUser({username, email, password, role, schoolId}){
         if(role === 'SCHOOL_ADMIN'){
              if(!schoolId) return { error: 'School ID is required for School Administrators', code: 400 };
              

@@ -1,0 +1,88 @@
+### Axon API Testing
+# Use with "REST Client" extension (humao.rest-client)
+
+@baseUrl = http://localhost:5111/api
+# @baseUrl = https://axon-school-management-api.onrender.com/api
+
+### 1. Register Superadmin
+# @name createSuperAdmin
+POST {{baseUrl}}/user/createUser
+Content-Type: application/json
+
+{
+    "username": "sa_rest_{{$timestamp}}",
+    "email": "sa_{{$timestamp}}@admin.com",
+    "password": "password123",
+    "role": "SUPERADMIN"
+}
+
+### 2. Login
+# @name login
+POST {{baseUrl}}/user/login
+Content-Type: application/json
+
+{
+    "username": "{{createSuperAdmin.response.body.data.user.username}}",
+    "password": "password123"
+}
+
+### Variable for token
+@token = {{login.response.body.data.longToken}}
+
+### 3. Create School
+# @name createSchool
+POST {{baseUrl}}/school/createSchool
+Content-Type: application/json
+token: {{token}}
+
+{
+    "name": "REST Academy {{$timestamp}}",
+    "address": "456 Script Avenue",
+    "phone": "555-0123"
+}
+
+### 4. Create School Admin
+# @name createSchoolAdmin
+POST {{baseUrl}}/user/createUser
+Content-Type: application/json
+token: {{token}}
+
+{
+    "username": "sch_admin_{{$timestamp}}",
+    "email": "sch_{{$timestamp}}@admin.com",
+    "password": "password123",
+    "role": "SCHOOL_ADMIN",
+    "schoolId": "{{createSchool.response.body.data.school._id}}"
+}
+
+### 5. Get Schools
+POST {{baseUrl}}/school/getSchools
+Content-Type: application/json
+token: {{token}}
+
+{}
+
+### 6. Create Classroom
+# @name createClassroom
+POST {{baseUrl}}/classroom/createClassroom
+Content-Type: application/json
+token: {{token}}
+
+{
+    "name": "Class 101",
+    "capacity": 20,
+    "resources": ["Books", "Laptop"]
+}
+
+### 7. Create Student
+# @name createStudent
+POST {{baseUrl}}/student/createStudent
+Content-Type: application/json
+token: {{token}}
+
+{
+    "name": "John Doe",
+    "age": 15,
+    "grade": "10th",
+    "classroomId": "{{createClassroom.response.body.data.classroom._id}}"
+}

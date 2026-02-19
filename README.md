@@ -18,7 +18,7 @@ A comprehensive RESTful API for managing schools, classrooms, and students with 
 
 ## Prerequisites
 
-- Node.js (v14+)
+- Node.js (v22)
 - MongoDB (Local or Atlas)
 
 ## Installation
