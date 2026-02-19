@@ -16,15 +16,12 @@ module.exports = class Classroom {
 
         const classroom = {name, capacity, resources, schoolId: effectiveSchoolId};
 
-        // Data validation
         let result = await this.validators.classroom.createClassroom(classroom);
         if(result) return result;
 
-        // Check for duplicate in the same school
         const existingClassroom = await this.mongomodels.classroom.findOne({ name, schoolId: effectiveSchoolId });
         if(existingClassroom) return { error: 'Classroom already exists in this school' };
 
-        // Creation
         const createdClassroom = await this.mongomodels.classroom.create(classroom);
         
         return { classroom: createdClassroom };
@@ -43,7 +40,6 @@ module.exports = class Classroom {
         const classroom = await this.mongomodels.classroom.findById(id);
         if(!classroom) return { error: 'Classroom not found' };
 
-        // Access Control
         if(__longToken.role !== 'SUPERADMIN' && classroom.schoolId.toString() !== __longToken.schoolId){
              return { error: 'Unauthorized Access', code: 403 };
         }
@@ -55,13 +51,11 @@ module.exports = class Classroom {
         const classroom = await this.mongomodels.classroom.findById(id);
         if(!classroom) return { error: 'Classroom not found' };
 
-         // Access Control
          if(__longToken.role !== 'SUPERADMIN' && classroom.schoolId.toString() !== __longToken.schoolId){
             return { error: 'Unauthorized Access', code: 403 };
        }
 
         const updateData = {name, capacity, resources};
-        // Remove undefined fields
         Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
 
         const updatedClassroom = await this.mongomodels.classroom.findByIdAndUpdate(id, updateData, { new: true });
@@ -73,7 +67,6 @@ module.exports = class Classroom {
         const classroom = await this.mongomodels.classroom.findById(id);
         if(!classroom) return { error: 'Classroom not found' };
 
-         // Access Control
          if(__longToken.role !== 'SUPERADMIN' && classroom.schoolId.toString() !== __longToken.schoolId){
             return { error: 'Unauthorized Access', code: 403 };
        }

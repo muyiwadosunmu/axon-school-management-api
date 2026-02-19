@@ -14,28 +14,23 @@ module.exports = class User {
     }
 
     async createUser({__longToken, __isSuperAdmin, username, email, password, role, schoolId}){
-        // Enforce School Admin requirements
         if(role === 'SCHOOL_ADMIN'){
              if(!schoolId) return { error: 'School ID is required for School Administrators', code: 400 };
              
-             // Validate School Exists
              const school = await this.mongomodels.school.findById(schoolId);
              if(!school) return { error: 'Invalid School ID', code: 400 };
         }
 
         const user = {username, email, password, role, schoolId};
 
-        // Data validation
         let result = await this.validators.user.createUser(user);
         if(result) return result;
         
-        // Check if user exists
         const existingUser = await this.mongomodels.user.findOne({ $or: [{email}, {username}] });
         if(existingUser) {
             return { error: 'User already exists' };
         }
 
-        // Creation Logic
         const hashedPassword = await bcrypt.hash(password, 10);
         const createdUserRaw = await this.mongomodels.user.create({
             username, 
@@ -64,7 +59,6 @@ module.exports = class User {
             schoolId: createdUser.schoolId,
         });
         
-        // Response
         return {
             user: createdUser, 
             longToken 

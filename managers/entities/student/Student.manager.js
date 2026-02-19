@@ -16,7 +16,6 @@ module.exports = class Student {
 
         const student = {name, age, grade, schoolId: effectiveSchoolId, classroomId};
 
-        // Data validation
         let result = await this.validators.student.createStudent(student);
         if(result) return result;
 
@@ -34,7 +33,6 @@ module.exports = class Student {
             }
         }
 
-        // Creation
         const createdStudent = await this.mongomodels.student.create(student);
         
         return { student: createdStudent };
@@ -53,22 +51,12 @@ module.exports = class Student {
         const student = await this.mongomodels.student.findById(id).populate('classroomId');
         if(!student) return { error: 'Student not found' };
 
-         // Access Control
-         if(__longToken.role !== 'SUPERADMIN' && student.schoolId.toString() !== __longToken.schoolId){
-            return { error: 'Unauthorized Access', code: 403 };
-       }
-
         return { student };
     }
 
     async updateStudent({__longToken, __isSchoolAdmin, id, name, age, grade}){
         const student = await this.mongomodels.student.findById(id);
         if(!student) return { error: 'Student not found' };
-
-         // Access Control
-         if(__longToken.role !== 'SUPERADMIN' && student.schoolId.toString() !== __longToken.schoolId){
-            return { error: 'Unauthorized Access', code: 403 };
-       }
 
         const updateData = {name, age, grade};
         Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
@@ -82,17 +70,11 @@ module.exports = class Student {
         const student = await this.mongomodels.student.findById(id);
         if(!student) return { error: 'Student not found' };
 
-         // Access Control
-         if(__longToken.role !== 'SUPERADMIN' && student.schoolId.toString() !== __longToken.schoolId){
-            return { error: 'Unauthorized Access', code: 403 };
-       }
-
         await this.mongomodels.student.findByIdAndDelete(id);
         return { success: true };
     }
 
     async enrollStudent({__longToken, __isSchoolAdmin, id, classroomId}){
-        // Basically same as transfer, assigning a classroom
         return this.transferStudent({__longToken, __isSchoolAdmin, id, classroomId});
     }
 
@@ -100,12 +82,10 @@ module.exports = class Student {
         const student = await this.mongomodels.student.findById(id);
         if(!student) return { error: 'Student not found' };
 
-         // Access Control
          if(__longToken.role !== 'SUPERADMIN' && student.schoolId.toString() !== __longToken.schoolId){
             return { error: 'Unauthorized Access', code: 403 };
         }
 
-        // Verify classroom exists and belongs to same school
         const classroom = await this.mongomodels.classroom.findById(classroomId);
         if(!classroom) return { error: 'Classroom not found' };
 
@@ -113,7 +93,6 @@ module.exports = class Student {
              return { error: 'Classroom belongs to a different school', code: 400 };
         }
 
-        // Check capacity
         const currentCount = await this.mongomodels.student.countDocuments({ classroomId });
         if(currentCount >= classroom.capacity){
             return { error: 'Classroom is full', code: 400 };

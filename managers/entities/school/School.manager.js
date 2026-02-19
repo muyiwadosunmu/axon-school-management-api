@@ -7,21 +7,18 @@ module.exports = class School {
         this.mongomodels         = mongomodels;
         this.schoolsCollection   = "schools";
         this.httpExposed         = ['createSchool', 'getSchools', 'getSchool', 'updateSchool', 'deleteSchool'];
-        this.auth                = ['createSchool', 'updateSchool', 'deleteSchool']; // Requires Auth
+        this.auth                = ['createSchool', 'updateSchool', 'deleteSchool']; 
     }
 
     async createSchool({__longToken, __isSuperAdmin, name, address, phone, email, website}){
         const school = {name, address, phone, email, website};
 
-        // Data validation
         let result = await this.validators.school.createSchool(school);
         if(result) return result;
 
-        // Check for duplicate
         const existingSchool = await this.mongomodels.school.findOne({ name });
         if(existingSchool) return { error: 'School already exists' };
 
-        // Creation
         const createdSchool = await this.mongomodels.school.create(school);
         
         return { school: createdSchool };
@@ -40,7 +37,6 @@ module.exports = class School {
 
     async updateSchool({__longToken, __isSuperAdmin, id, name, address, phone, email, website}){
         const updateData = {name, address, phone, email, website};
-        // Remove undefined fields
         Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
 
         const updatedSchool = await this.mongomodels.school.findByIdAndUpdate(id, updateData, { new: true });
